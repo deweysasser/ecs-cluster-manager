@@ -22,16 +22,16 @@ $(STATE):: $(CFSTATE)
 # Default targets
 all:: $(foreach s,$(wildcard *.cf),$(CFSTATE)/$(PREFIX)-$(notdir $s))
 
+SCRIPTS=makefiles/scripts
 
-# The standard set of parameters we supply to every cloudformation template
-STANDARD_PARAMETERS=ParameterKey=Prefix,ParameterValue=$(PREFIX) ParameterKey=CreatedBy,ParameterValue=$(USER) 
+AWSCLI_VERSION_REQUIRED=1.11.51
+include aws-version.mk
+
+
 
 # How to turn a .params files into a command line set of
 # cloudformation parameters
 
-define PARAMETERS
-$(shell perl -n -e 'chop; chop if /\r$$/; next if /^#/; print "\"ParameterKey=$$1,ParameterValue=$$3\" \n "if /(.*)(\s*=\s*)(.*)[\s\\r]*?/; ' $1)
-endef
 
 ######################################################################
 # How to build stacks
@@ -39,14 +39,8 @@ endef
 
 $(CFSTATE)/$(PREFIX)-%.cf: $(CFSTATE)
 
-$(CFSTATE)/$(PREFIX)-%.cf: %.cf %.params $(CFSTATE)
-	@if [ -f $@ ] ; then \
-	echo "Updating Stack $(notdir $@)" ;\
-	$(AWS) cloudformation  update-stack --capabilities CAPABILITY_IAM  --stack-name $(PREFIX)-$* --template-body file://$<  --parameters $(STANDARD_PARAMETERS) $(call PARAMETERS,$*.params); \
-	else  \
-	echo "Creating Stack $(notdir $@)" ;\
-	$(AWS) cloudformation  create-stack --capabilities CAPABILITY_IAM  --stack-name $(PREFIX)-$* --template-body file://$<  --parameters $(STANDARD_PARAMETERS) $(call PARAMETERS,$*.params); \
-	fi
+$(CFSTATE)/$(PREFIX)-%.cf: %.cf %.params $(CFSTATE) 
+	bash $(SCRIPTS)/create-stack.sh --prefix "${PREFIX}" --profile $(PROFILE) --stack-name $(PREFIX)-$* --file $< --params $*.params
 	@touch $@
 
 %.params:
@@ -57,7 +51,7 @@ $(CFSTATE)/$(PREFIX)-%.cf: %.cf %.params $(CFSTATE)
 ######################################################################
 
 delete/%.cf: $(CFSTATE) 
-	test -f $(CFSTATE)/$(PREFIX)-$* && $(AWS) cloudformation delete-stack --stack-name $(PREFIX)-$(basename $*) || true
+	test -f $(CFSTATE)/$(PREFIX)-$* && ( $(AWS) cloudformation delete-stack --stack-name $(PREFIX)-$(basename $*) ; $(AWS) cloudformation wait stack-delete-complete --stack-name $(PREFIX)-$(basename $*) )|| true
 	rm $(CFSTATE)/$(PREFIX)-$*
 
 # Destroy is a speical case -- it's a very dangerous operation, so only allow it if we explitictly confirm
@@ -97,7 +91,19 @@ $(CFSTATE)/.cloudformation-inspect:
 # Print general info
 info::
 	@echo PROJECT = $(PROJECT)
+	@echo AWS CLI version = $(AWSCLI_VERSION)
 
 
 test:
 	echo $(call PARAMETERS,ecs-cluster.params)
+
+aws-version.mk: AWSCLI_VERSION=$(shell aws --version 2>&1 | awk 'BEGIN{RS=" "; FS="/"};/aws/{print $$2}') 
+aws-version.mk:
+	@if [ $$(printf "%s\n%s" $(AWSCLI_VERSION_REQUIRED)  $(AWSCLI_VERSION) | sort -V | head -n 1) != $(AWSCLI_VERSION_REQUIRED) ] ; then \
+	 echo  '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' ;\
+	 echo Please upgrade aws cli to at least version $(AWSCLI_VERSION_REQUIRED); \
+	echo Your version: $(AWSCLI_VERSION) ;\
+	 echo  '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!' ;\
+	 exit 1; \
+	fi
+	echo AWSCLI_VERSION=$(AWSCLI_VERSION) > $@
