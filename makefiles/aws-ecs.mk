@@ -77,6 +77,13 @@ remove/%.service: drain/%.service
 	-test -f $(SERVICESTATE)/$(notdir $@) && $(ECS) delete-service --service $(notdir $*) --cluster $(CLUSTER) --query "service.serviceArn" && sleep 20s
 	rm -f $(SERVICESTATE)/$(notdir $@) $(SERVICESTATE)/$(notdir $*).autoservice
 
+destroy-services: $(foreach x,$(SERVICES),remove/$x) $(foreach x,$(AUTOCREATE_TASKDEFS),remove/$(basename $x).service)
+
+ifeq ($(CONFIRM),yes)
+destroy: destroy-services
+endif
+
+
 # Load the initial state
 
 #ifneq ($(wildcard $(SERVICESTATE)), $(SERVICESTATE))
