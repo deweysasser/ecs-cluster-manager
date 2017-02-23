@@ -18,7 +18,7 @@ endif
 $(STATE)/%.pushed: $(STATE)/%.repo $(STATE)/%.built  | $(STATE)/ecr-login
 	docker tag $*:$(TAG) $(REGISTRY_BASE)/$*:$(TAG)
 	docker push $(REGISTRY_BASE)/$*:$(TAG)
-	touch $@
+	@mkdir -p $(dir $@) && touch $@
 
 
 $(STATE)/%.repo: | $(STATE)
@@ -46,7 +46,7 @@ $(STATE)/ecr-login: $(STATE) $(STATE)/ecr-login.$(PROFILE).$(ROUNDED)
 
 $(STATE)/ecr-login.%:
 	rm -f $(STATE)/ecr-login.*
-	touch $@
+	@mkdir -p $(dir $@) && touch $@
 
 ecr-registry.mk:
 	echo REGISTRY_BASE=$(patsubst %/,%,$(dir $(shell $(ECR) describe-repositories --repository-names inspect --query 'repositories[0].repositoryUri'  2>/dev/null || $(ECR) create-repository --repository-name inspect --query "repositories[0].repositoryUri"))) > $@
