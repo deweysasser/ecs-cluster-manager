@@ -50,15 +50,15 @@ $(CFSTATE)/$(PREFIX)-%.cf: %.cf %.params $(CFSTATE)
 # How to destroy stacks
 ######################################################################
 
-delete/%.cf: $(CFSTATE) 
+delete/%.cf: $(CFSTATE)  | destroy-services
 	test -f $(CFSTATE)/$(PREFIX)-$* && ( $(AWS) cloudformation delete-stack --stack-name $(PREFIX)-$(basename $*) ; $(AWS) cloudformation wait stack-delete-complete --stack-name $(PREFIX)-$(basename $*) )|| true
-	rm $(CFSTATE)/$(PREFIX)-$*
+	-rmdir $(CFSTATE)/$(PREFIX)-$*
 
 # Destroy is a speical case -- it's a very dangerous operation, so only allow it if we explitictly confirm
 ifeq ($(CONFIRM),yes)
-destroy: $(foreach s,$(wildcard *.cf),delete/$s.cf)
+destroy: $(foreach s,$(wildcard *.cf),delete/$s)
 else
-destroy:
+destroy: 
 	@echo "WARNING:  'make destroy' is dangerous."
 	@echo "It will delete all stack resources *INCLUDING* buckets and file systems with data"
 	@printf "\nDestroy would delete the following stacks: $(foreach s,$(wildcard *.cf),\n   - $(PREFIX)-$(subst .cf,,$s))\n\n"
