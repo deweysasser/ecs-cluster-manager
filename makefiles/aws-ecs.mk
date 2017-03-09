@@ -96,7 +96,7 @@ $(SERVICESTATE)/.services-recorded:
 	@for arn in $$( $(ECSTEXT) list-services --cluster ${CLUSTER} | tr -d '\r' | cut -f 2); do \
 	   name=$$(echo $$arn | cut -d / -f 2 | cut -d : -f 1 ) ;\
 	    echo "  - " $$name ;\
-	    touch $(dir $2)/$$name.service ;\
+	    touch $(dir $@)/$$name.service ;\
 	done
 	@touch $@
 
