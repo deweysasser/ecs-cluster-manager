@@ -26,7 +26,7 @@ STANDARD_PARAMETERS="ParameterKey=Prefix,ParameterValue=${PREFIX} ParameterKey=C
 
 # Test if the stack exists
 stack_exists() {
-    if aws --profile ${PROFILE} cloudformation describe-stacks --stack-name ${NAME} --query Stacks[0].StackStatus > /dev/null ; then
+    if aws --profile ${PROFILE} cloudformation describe-stacks --stack-name ${NAME} --query Stacks[0].StackStatus  > /dev/null 2>&1 ; then
 	return 0
     else
 	return 1
