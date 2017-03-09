@@ -12,7 +12,7 @@ TASKSTATE=$(STATE)/$(PROFILE)
 # Calculate the targets we need to update -- i.e. calculate the names of
 # all *targets* by examining the sources
 TASKDEFS=$(wildcard *.taskdef)
-SERVICES=$(wildcard *.service)
+SERVICES=$(wildcard *.service) $(foreach x, $(wildcard *.service.template),$(basename $x))
 AUTOCREATE_TASKDEFS=$(shell grep -l AUTOCREATE.SERVICE $(TASKDEFS))
 
 
@@ -71,13 +71,16 @@ cleanup/%.taskdef:
 	@$(ECSTEXT) list-task-definitions --family-prefix $(notdir $*) | awk '{print $$2}' | head -n -3 | xargs -r -n 1 $(ECSTEXT) deregister-task-definition --query "['remove',taskDefinition.[family,':',revision]]" --task-definition; 
 
 drain/%.service:
-	-test -f $(SERVICESTATE)/$(notdir $@) && $(ECS) update-service --service $(notdir $*) --desired-count 0 --cluster $(CLUSTER) --query "service.[desiredCount]"
+	echo "Draining $(notdir $@)"
+	@test -f $(SERVICESTATE)/$(notdir $@) && $(ECS) update-service --service $(notdir $*) --desired-count 0 --cluster $(CLUSTER) --query "service.[desiredCount]" || true
 
 remove/%.service: drain/%.service
-	-test -f $(SERVICESTATE)/$(notdir $@) && $(ECS) delete-service --service $(notdir $*) --cluster $(CLUSTER) --query "service.serviceArn" && sleep 20s
-	rm -f $(SERVICESTATE)/$(notdir $@) $(SERVICESTATE)/$(notdir $*).autoservice
+	echo "Removing $(notdir $@)"
+	@test -f $(SERVICESTATE)/$(notdir $@) && $(ECS) delete-service --service $(notdir $*) --cluster $(CLUSTER) --query "service.serviceArn" && sleep 20s || true
+	@rm -f $(SERVICESTATE)/$(notdir $@) $(SERVICESTATE)/$(notdir $*).autoservice
 
-destroy-services: $(foreach x,$(SERVICES),remove/$x) $(foreach x,$(AUTOCREATE_TASKDEFS),remove/$(basename $x).service)
+destroy-services: $(foreach x,$(SERVICES),remove/$x) $(foreach x,$(wildcard *.service.template),remove/$(basename $x)) $(foreach x,$(AUTOCREATE_TASKDEFS),remove/$(basename $x).service)
+	@rm $(SERVICESTATE)/.services-recorded
 
 ifeq ($(CONFIRM),yes)
 destroy: destroy-services

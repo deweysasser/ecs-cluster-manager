@@ -51,8 +51,8 @@ $(CFSTATE)/$(PREFIX)-%.cf: %.cf %.params $(CFSTATE)
 ######################################################################
 
 delete/%.cf: $(CFSTATE)  | destroy-services
-	test -f $(CFSTATE)/$(PREFIX)-$* && ( $(AWS) cloudformation delete-stack --stack-name $(PREFIX)-$(basename $*) ; $(AWS) cloudformation wait stack-delete-complete --stack-name $(PREFIX)-$(basename $*) )|| true
-	-rmdir $(CFSTATE)/$(PREFIX)-$*
+	test -f $(CFSTATE)/$(PREFIX)-$(notdir $@) && ( $(AWS) cloudformation delete-stack --stack-name $(PREFIX)-$(basename $*) ; $(AWS) cloudformation wait stack-delete-complete --stack-name $(PREFIX)-$(basename $*) )|| true
+	-rm $(CFSTATE)/$(PREFIX)-$(notdir $@)
 
 # Destroy is a speical case -- it's a very dangerous operation, so only allow it if we explitictly confirm
 ifeq ($(CONFIRM),yes)
