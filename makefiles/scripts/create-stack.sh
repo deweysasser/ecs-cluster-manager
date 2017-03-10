@@ -44,7 +44,7 @@ stack_has_changed() {
 
     aws --profile ${PROFILE} cloudformation wait change-set-create-complete --stack-name ${NAME} --change-set-name change-${NOW}
 
-    if [ $(aws --profile ${PROFILE} --output text cloudformation describe-change-set --change-set-name change-${NOW} --stack-name ${NAME} --query Status | tr -d '\r') == "FAILED" ] ; then
+    if [ "$(aws --profile ${PROFILE} --output text cloudformation describe-change-set --change-set-name change-${NOW} --stack-name ${NAME} --query Status | tr -d '\r')" == "FAILED" ] ; then
 	aws --profile ${PROFILE} cloudformation delete-change-set --stack-name ${NAME} --change-set-name change-${NOW}
 	return 1
     else

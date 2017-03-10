@@ -92,6 +92,7 @@ $(CFSTATE)/.cloudformation-inspect:
 info::
 	@echo PROJECT = $(PROJECT)
 	@echo AWS CLI version = $(AWSCLI_VERSION)
+	@echo PROFILE = $(PROFILE)
 
 
 test:
