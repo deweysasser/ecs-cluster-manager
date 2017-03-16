@@ -19,8 +19,10 @@ AWS=aws --profile $(PROFILE)
 CFSTATE=$(STATE)/$(PROFILE)
 $(STATE):: $(CFSTATE)
 
+CFFILES+=$(wildcard *.cf)
+
 # Default targets
-all:: $(foreach s,$(wildcard *.cf),$(CFSTATE)/$(PREFIX)-$(notdir $s))
+all:: $(foreach s,$(CFFILES),$(CFSTATE)/$(PREFIX)-$(notdir $s))
 
 SCRIPTS=makefiles/scripts
 
@@ -93,6 +95,7 @@ info::
 	@echo PROJECT = $(PROJECT)
 	@echo AWS CLI version = $(AWSCLI_VERSION)
 	@echo PROFILE = $(PROFILE)
+	@echo CFFILES = $(CFFILES)
 
 
 test:
