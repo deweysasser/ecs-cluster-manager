@@ -16,7 +16,7 @@ def adjust_service_desired_count(ecs_client, cluster, service):
     running_service = ecs_client.describe_services(cluster=cluster, services=[service])
 
     if not running_service["services"]:
-        print("SKIP: Service '{service}' not found in cluster '{cluster}'".format(cluster=cluster, service=service))
+        print >> sys.stderr, ("SKIP: Service '{service}' not found in cluster '{cluster}'".format(cluster=cluster, service=service))
         return
 
     desired_task_count = running_service["services"][0]["desiredCount"]
@@ -25,7 +25,7 @@ def adjust_service_desired_count(ecs_client, cluster, service):
     registered_instances = clusters["clusters"][0]["registeredContainerInstancesCount"]
 
     if desired_task_count != registered_instances:
-        print("Adjusting cluster '{}' to run {} tasks of service '{}'".format(
+        print >> sys.stderr, ("Adjusting cluster '{}' to run {} tasks of service '{}'".format(
             cluster, registered_instances, service
         ))
         response = ecs_client.update_service(
@@ -34,11 +34,11 @@ def adjust_service_desired_count(ecs_client, cluster, service):
             desiredCount=registered_instances,
         )
 
-        print(response)
+        print >> sys.stderr, (response)
         return response
 
     # Do nothing otherwise
-    print("SKIP: Cluster {} has {} desired tasks for {} registered instances.".format(
+    print >> sys.stderr, ("SKIP: Cluster {} has {} desired tasks for {} registered instances.".format(
         cluster, desired_task_count, registered_instances
     ))
     return
@@ -57,13 +57,13 @@ def lambda_handler(event, context):
 
     # Determine if this event is one that we care about
     if event["detail-type"] != "ECS Container Instance State Change":
-        print("SKIP: Function operates only on ECS Container Instance State Change events.")
+        print >> sys.stderr, ("SKIP: Function operates only on ECS Container Instance State Change events.")
         return
 
     # Valid event, and one we are interested in
     cluster = event["detail"]["clusterArn"]
     adjust_service_desired_count(ecs_client(), cluster, service)
-    print("DONE")
+    print >> sys.stderr, ("DONE")
 
 
 def main():
@@ -76,15 +76,15 @@ def main():
     args = parser.parse_args()
 
     if not args.cluster:
-        print "Either --cluster must be specified or CLUSTER environment variable must be set"
+        print >> sys.stderr,  "Either --cluster must be specified or CLUSTER environment variable must be set"
         sys.exit(1)
 
     if not args.services:
-        print "Either --services must be specified or SERVICES environment variable must be set"
+        print >> sys.stderr,  "Either --services must be specified or SERVICES environment variable must be set"
         sys.exit(1)
 
-    print "In Cluster '%s', managing:" % args.cluster
-    print "  " + "\n  ".join(args.services)
+    print >> sys.stderr,  "In Cluster '%s', managing:" % args.cluster
+    print >> sys.stderr,  "  " + "\n  ".join(args.services)
     
 
     while True:
@@ -92,8 +92,8 @@ def main():
             for service in args.services:
                 adjust_service_desired_count(ecs_client(), args.cluster, service)
         except Exception as e:
-            print "Exception adjusting service"
-            print traceback.format_exc()
+            print >> sys.stderr,  "Exception adjusting service"
+            print >> sys.stderr,  traceback.format_exc()
         if args.once:
             break
         time.sleep(60)
