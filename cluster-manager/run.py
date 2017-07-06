@@ -5,6 +5,7 @@ import os
 import sys
 import argparse
 import time
+import traceback
 
 def ecs_client():
     return boto3.client("ecs")
@@ -70,7 +71,7 @@ def main():
 
     parser.add_argument("--cluster", help="Cluster name or ARN", default=os.environ.get('CLUSTER', ''))
     parser.add_argument("--services", help="Service name or  ARN", default=os.environ.get('SERVICES', '').split(' '), nargs="+") 
-    parser.add_argument("--once", help="Run only once", default=False)
+    parser.add_argument("--once", help="Run only once", action='store_true', default=False)
 
     args = parser.parse_args()
 
@@ -89,9 +90,10 @@ def main():
     while True:
         try:
             for service in args.services:
-                adjust_service_desired_count(ecs_client(), args.cluster, args.service)
-        except:
+                adjust_service_desired_count(ecs_client(), args.cluster, service)
+        except Exception as e:
             print "Exception adjusting service"
+            print traceback.format_exc()
         if args.once:
             break
         time.sleep(60)
