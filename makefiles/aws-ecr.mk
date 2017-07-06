@@ -2,6 +2,7 @@
 PROFILE?=sandbox
 PUSH=$(if $(REGISTRY_BASE),true,false)
 ECR=aws --profile $(PROFILE) --output text ecr
+TAG?=latest
 
 ifndef REGISTRY_BASE
 include ecr-registry.mk
@@ -41,7 +42,7 @@ info::
 ROUNDED=$(shell echo $$(( $$(date +%s) / (3600*6) * 3600*6 )))
 
 $(STATE)/ecr-login: $(STATE) $(STATE)/ecr-login.$(PROFILE).$(ROUNDED)
-	aws --profile $(PROFILE) ecr get-login | tr -d '\r' > $@
+	aws --profile $(PROFILE) ecr get-login --no-include-email | tr -d '\r' > $@
 	bash $@
 
 $(STATE)/ecr-login.%:
