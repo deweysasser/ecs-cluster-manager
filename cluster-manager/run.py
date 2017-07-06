@@ -68,11 +68,19 @@ def lambda_handler(event, context):
 def main():
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--cluster", help="Cluster name or ARN", default=os.environ.get('CLUSTER', ''), required=True)
-    parser.add_argument("--services", help="Service name or  ARN", default=os.environ.get('SERVICES', '').split(' '), required=True, nargs="+") 
+    parser.add_argument("--cluster", help="Cluster name or ARN", default=os.environ.get('CLUSTER', ''))
+    parser.add_argument("--services", help="Service name or  ARN", default=os.environ.get('SERVICES', '').split(' '), nargs="+") 
     parser.add_argument("--once", help="Run only once", default=False)
 
     args = parser.parse_args()
+
+    if not args.cluster:
+        print "Either --cluster must be specified or CLUSTER environment variable must be set"
+        sys.exit(1)
+
+    if not args.services:
+        print "Either --services must be specified or SERVICES environment variable must be set"
+        sys.exit(1)
 
     print "In Cluster '%s', managing:" % args.cluster
     print "  " + "\n  ".join(args.services)
