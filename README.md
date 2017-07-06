@@ -16,3 +16,9 @@ While the "run.py" command could be used stand-alone or with `docker
 run`, it is really designed to itself be a service in an ECS cluster
 and manage the services for the cluster in which it is running.
 
+
+## Make Library
+
+This project includes http://github.com/deweysasser/makelib.
+
+See [ToolUse.md] for more information.

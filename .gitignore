@@ -1,3 +1,51 @@
+# Created with
+# git clone git@github.com:github/gitignore.git
+# cd gitignore; cat C.gitignore Python.gitignore  Go.gitignore  Perl.gitignore Packer.gitignore Elisp.gitignore C++.gitignore  ChefCookbook.gitignore
+# Plus some of my own additions at the top
+
+# Backup files
+*~
+#*#
+*.bak
+
+
+
+######################################################################
+# Github concatenation below this line
+######################################################################
+
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Libraries
+*.lib
+*.a
+*.la
+*.lo
+
+# Shared objects (inc. Windows DLLs)
+*.dll
+*.so
+*.so.*
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+
+# Debug files
+*.dSYM/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -20,7 +68,6 @@ lib64/
 parts/
 sdist/
 var/
-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
@@ -43,8 +90,7 @@ htmlcov/
 .cache
 nosetests.xml
 coverage.xml
-*.cover
-.hypothesis/
+*,cover
 
 # Translations
 *.mo
@@ -52,50 +98,101 @@ coverage.xml
 
 # Django stuff:
 *.log
-local_settings.py
-
-# Flask stuff:
-instance/
-.webassets-cache
-
-# Scrapy stuff:
-.scrapy
 
 # Sphinx documentation
 docs/_build/
 
 # PyBuilder
 target/
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Folders
+_obj
+_test
 
-# pyenv
-.python-version
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
 
-# celery beat schedule file
-celerybeat-schedule
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
 
-# SageMath parsed files
-*.sage.py
+_testmain.go
 
-# dotenv
-.env
+*.exe
+*.test
+*.prof
+/blib/
+/.build/
+_build/
+cover_db/
+inc/
+Build
+!Build/
+Build.bat
+.last_cover_stats
+/Makefile.old
+/MANIFEST.bak
+/META.yml
+/META.json
+/MYMETA.*
+nytprof.out
+/pm_to_blib
+*.o
+*.bs
+/_eumm/
+# Cache objects
+packer_cache/
 
-# virtualenv
-.venv
-venv/
-ENV/
+# For built boxes
+*.box
+# Compiled
+*.elc
 
-# Spyder project settings
-.spyderproject
-.spyproject
+# Packaging
+.cask
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
 
-# Rope project settings
-.ropeproject
+# Precompiled Headers
+*.gch
+*.pch
 
-# mkdocs documentation
-/site
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
 
-# mypy
-.mypy_cache/
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+.vagrant
+/cookbooks
+
+# Bundler
+bin/*
+.bundle/*
+
+.kitchen/
+.kitchen.local.yml
+.running
+local.mk
