@@ -102,7 +102,7 @@ def main():
     args = parser.parse_args()
 
     if 'SERVICES' in os.environ:
-        args.services.extend(os.environ.split(' '))
+        args.services.extend(os.environ['SERVICES'].split(' '))
 
     if not args.cluster:
         print >> sys.stderr,  "Either --cluster must be specified or CLUSTER environment variable must be set"
