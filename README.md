@@ -16,7 +16,10 @@ While the "run.py" command could be used stand-alone or with `docker
 run`, it is really designed to itself be a service in an ECS cluster
 and manage the services for the cluster in which it is running.
 
-WARNING: When using CloudFormation, it's possible to wedge CF using
+WARNING
+-------
+
+When using CloudFormation, it's possible to wedge CF using
 this service.  Specifically, if cloudformation is updating one of the
 services that this service is also updating, CF will wedge itself with
 "service will not stabilize".  
