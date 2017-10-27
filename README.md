@@ -21,16 +21,20 @@ this service.  Specifically, if cloudformation is updating one of the
 services that this service is also updating, CF will wedge itself with
 "service will not stabilize".  
 
-To get out of this situation, wait for CF to timeout (by default --
-hours), then trigger a rollback.  When that fails, you can then
-trigger another rollback but specify skipping the problematical
-service.
+To work around this issue, stop the cluster manager service during
+cloudformation updates. (If you have cluster-manager defined in
+cloudformation it will restore it as part of the update).
 
-I recommend giving your cloudformation stacks a shorter timeout to
-make this problem less painful.
+Alternatively, for all managed services, you can removed the
+`DesiredCount` parameter.  Note that doing this provides a bootstrap
+problem as `DesiredCount` is required when creating a new service.
 
-Alternatively, do *NOT* use cloudformation for services managed by
-this manager.  Cloudformation has a rather static bias.
+If you do manage to wedge cloudformation, simply turn off the
+cluster-manager service until the update completes.  If you cannot do
+that or for some reason it does not work, wait for CF to timeout (by
+default -- hours) or cancel the update, then trigger a rollback.  If
+this fails, you can then trigger another rollback but specify skipping
+the problematical service.
 
 ## Example cluster service
 
