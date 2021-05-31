@@ -1,3 +1,16 @@
+ARCHIVED
+========
+
+This project is no longer maintained.  
+
+This was a work-around for ECS's lack of a major feature (like, come on, folks, how could you miss this?  And leave it out for so long?)
+
+In any case, ECS now has [daemon tasks](https://aws.amazon.com/about-aws/whats-new/2018/06/amazon-ecs-adds-daemon-scheduling/) and this hack is unnecessary.
+
+---
+
+
+
 # ecs-cluster-manager
 
 Manage a Cluster of ECS machines/services
